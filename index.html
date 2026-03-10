@@ -13,6 +13,13 @@
         :root { --cw-blue: #00A1E0; }
         body { font-family: 'Pretendard', sans-serif; background: #F8FAFC; color: #1E293B; letter-spacing: -0.04em; }
         
+        /* 전략 버튼 디자인 */
+        .strategy-btn {
+            padding: 12px 28px; border-radius: 12px; font-weight: 800; font-size: 0.95rem;
+            transition: all 0.3s ease; border: 1px solid #E2E8F0; background: #FFFFFF; color: #94A3B8;
+        }
+        .strategy-btn.active { background: #1E293B; color: #FFFFFF; border-color: #1E293B; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
         .nav-tab {
             padding: 16px 36px; border-radius: 16px; font-weight: 800; font-size: 1.1rem;
             transition: all 0.3s ease; border: 2px solid #E2E8F0; background: #FFFFFF; color: #94A3B8; cursor: pointer;
@@ -32,8 +39,14 @@
 <body class="p-6 md:p-10">
 
     <div class="max-w-[1600px] mx-auto">
-        <header class="flex justify-between items-center mb-10">
-            <h1 class="text-4xl font-black" style="color: var(--cw-blue);">COWAY NetZero Road map</h1>
+        <header class="flex justify-between items-end mb-10">
+            <div>
+                <h1 class="text-4xl font-black mb-4" style="color: var(--cw-blue);">COWAY NetZero Road map</h1>
+                <div class="flex space-x-2">
+                    <button onclick="updatePeriod(2033)" id="btn-2033" class="strategy-btn">📍 중기 전략 (~2033)</button>
+                    <button onclick="updatePeriod(2050)" id="btn-2050" class="strategy-btn active">🌐 장기 로드맵 (~2050)</button>
+                </div>
+            </div>
             <label class="cursor-pointer bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all flex items-center gap-2 shadow-lg">
                 <i class="fas fa-file-excel"></i> DATA LOAD
                 <input type="file" id="excel-upload" class="hidden" accept=".xlsx">
@@ -68,10 +81,10 @@
             <div class="flex justify-between text-[10px] font-black text-slate-300 mb-6 uppercase tracking-widest">
                 <span>Start 2023</span>
                 <span></span>
-                <span>Target 2050</span>
+                <span id="target-label">Target 2050</span>
             </div>
             <input type="range" id="year-slider" min="0" max="27" value="0">
-            <div class="flex justify-between mt-4 text-xs font-medium text-slate-500">
+            <div class="flex justify-between mt-4 text-xs font-medium text-slate-500" id="slider-ticks">
                 <span>2023</span><span>2030</span><span>2040</span><span>2050</span>
             </div>
         </div>
@@ -82,16 +95,16 @@
                     <span class="text-green-500">🌿</span> <span id="ghg-year-title">2023</span>년 온실가스 세부 현황
                 </h5>
                 <table class="info-table">
-                    <thead><tr><th>경영 지표 항목</th><th>당해 실적 (톤)</th><th>23년~ 누적합</th></tr></thead>
+                    <thead><tr><th>경영 지표 항목</th><th>당해 실적 (톤)</th><th>누적 합계 (톤)</th></tr></thead>
                     <tbody id="ghg-table-body"></tbody>
                 </table>
             </div>
             <div class="glass-panel p-6">
                 <h5 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
-                    <span class="text-amber-500">💰</span> <span id="cost-year-title">2023</span>년 투자 손익 세부 현황
+                    <span class="text-amber-500">💰</span> <span id="cost-year-title">2023</span>년 투자 및 비용 세부 현황
                 </h5>
                 <table class="info-table">
-                    <thead><tr><th>경영 지표 항목</th><th>당해 실적 (억)</th><th>23년~ 누적합</th></tr></thead>
+                    <thead><tr><th>경영 지표 항목</th><th>당해 실적 (억)</th><th>누적 합계 (억)</th></tr></thead>
                     <tbody id="cost-table-body"></tbody>
                 </table>
             </div>
@@ -108,6 +121,8 @@
 
     <script>
         let raw = []; let years = []; let menu = 'roadmap'; let chart = null;
+        let currentTargetYear = 2050;
+
         const fmt = (v, t) => {
             let n = Number(v) || 0;
             return t === 'cost' ? n.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1}) : Math.round(n).toLocaleString();
@@ -119,25 +134,99 @@
                 const wb = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
                 const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1});
                 years = rows[0].slice(1); raw = rows.slice(1);
-                document.getElementById('year-slider').max = years.length - 1;
-                sync(0);
+                updatePeriod(currentTargetYear);
             };
             r.readAsArrayBuffer(e.target.files[0]);
         };
 
-        const sync = (idx) => {
-            idx = parseInt(idx); const yr = years[idx];
+        function updatePeriod(year) {
+            currentTargetYear = year;
+            document.querySelectorAll('.strategy-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + year).classList.add('active');
+            
+            // 데이터 슬라이싱
+            const maxIdx = years.findIndex(y => Number(y) === year);
+            const slider = document.getElementById('year-slider');
+            slider.max = maxIdx !== -1 ? maxIdx : years.length - 1;
+            if(slider.value > slider.max) slider.value = slider.max;
+            
+            document.getElementById('target-label').innerText = "Target " + year;
+            const ticks = document.getElementById('slider-ticks');
+            ticks.innerHTML = year === 2033 ? "<span>2023</span><span>2028</span><span>2033</span>" : "<span>2023</span><span>2030</span><span>2040</span><span>2050</span>";
+            
+            sync();
+        }
+
+        function updateMenu(m) {
+            menu = m;
+            document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById('menu-' + m).classList.add('active');
+            const icon = document.getElementById('summary-icon');
+            const border = document.getElementById('summary-border');
+            if(m === 'costs') { icon.className = "fas fa-coins text-amber-500"; border.style.borderColor = "#F59E0B"; }
+            else { icon.className = "fas fa-leaf text-blue-500"; border.style.borderColor = "#00A1E0"; }
+            sync();
+        }
+
+        function sync() {
+            if (raw.length === 0) return;
+            const idx = parseInt(document.getElementById('year-slider').value);
+            const yr = years[idx];
             document.getElementById('display-year').innerText = yr;
             document.getElementById('ghg-year-title').innerText = yr;
             document.getElementById('cost-year-title').innerText = yr;
             document.getElementById('ghg-info-text').innerText = raw[14][idx+1] || "-";
             document.getElementById('cost-info-text').innerText = raw[15][idx+1] || "-";
-            updateSummary(idx); updateTables(idx); updateChart();
-        };
+            
+            updateChart(idx); updateSummary(idx); updateTables(idx);
+        }
 
-        const updateSummary = (idx) => {
+        function updateChart(currentIdx) {
+            if (chart) chart.destroy();
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const maxRange = parseInt(document.getElementById('year-slider').max) + 1;
+            const displayYears = years.slice(0, maxRange);
+            const displayRaw = raw.map(r => r.slice(0, maxRange + 1));
+
+            let ds = [];
+            if (menu === 'roadmap') {
+                ds = [
+                    { label: '목표 배출량', data: displayRaw[1].slice(1), backgroundColor: '#E2E8F0', type: 'bar' },
+                    { label: '투자 감축량', data: displayRaw[2].slice(1), backgroundColor: '#00A1E0', type: 'bar' },
+                    { label: 'REC 구매', data: displayRaw[3].slice(1), backgroundColor: '#93E1FF', type: 'bar' },
+                    { label: '가이드라인', data: displayRaw[1].slice(1), borderColor: '#FF4D4D', type: 'line', pointStyle: 'line', borderDash: [5, 5], borderWidth: 1 }
+                ];
+            } else if (menu === 'methods') {
+                const cls = ['#00A1E0', '#00D1FF', '#74E8FF', '#B2F2FF', '#D9F7FF'];
+                for(let i=4; i<=8; i++) ds.push({ label: displayRaw[i][0], data: displayRaw[i].slice(1), backgroundColor: cls[i-4], type: 'bar' });
+            } else {
+                const yI=[], yR=[], yN=[];
+                for(let i=1; i<=displayYears.length; i++) {
+                    let sI=0, sR=0; for(let r=9; r<=13; r++) { let v = Number(displayRaw[r][i])||0; if(v<0) sI+=v; else sR+=v; }
+                    yI.push(Math.abs(sI)); yR.push(sR); yN.push(sI+sR);
+                }
+                ds = [{ label: '순비용', data: yN, type: 'bar', backgroundColor: yN.map(v => v < 0 ? '#FCA5A5' : '#93C5FD'), order: 2 },
+                      { label: '투자비', data: yI, borderColor: '#2563EB', type: 'line', tension: 0.3, borderWidth: 2, order: 1 },
+                      { label: '감축비', data: yR, borderColor: '#10B981', type: 'line', tension: 0.3, borderWidth: 2, order: 1 }];
+            }
+            chart = new Chart(ctx, {
+                data: { labels: displayYears, datasets: ds },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { 
+                        x: { stacked: menu!=='costs', grid: { display: false }, ticks: { font: { size: 12 }, color: '#94A3B8' } },
+                        y: { stacked: menu!=='costs', grid: { color: '#F8FAFC' }, ticks: { callback: (v) => fmt(v, menu==='costs'?'cost':'ghg') } }
+                    },
+                    plugins: { 
+                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 6, font: { size: 11, weight: '700' } } }
+                    }
+                }
+            });
+        }
+
+        function updateSummary(idx) {
             const list = document.getElementById('summary-data-list'); list.innerHTML = "";
-            const unit = menu === 'costs' ? '억' : '톤'; const t = menu === 'costs' ? 'cost' : 'ghg';
+            const u = menu === 'costs' ? '억' : '톤'; const t = menu === 'costs' ? 'cost' : 'ghg';
             let items = [];
             if (menu !== 'costs') {
                 const exp = Number(raw[0][idx+1]) || 0; const tgt = Number(raw[1][idx+1]) || 0;
@@ -150,12 +239,12 @@
             items.forEach(i => {
                 list.innerHTML += `<div class="flex justify-between items-center py-2 border-b border-slate-50">
                     <span class="text-slate-400 font-bold text-xs">${i[0]}</span>
-                    <span class="font-black text-slate-800 text-base">${fmt(i[1], t)}<span class="text-[10px] ml-1 opacity-30">${unit}</span></span>
+                    <span class="font-black text-slate-800 text-base">${fmt(i[1], t)}<span class="text-[10px] ml-1 opacity-30">${u}</span></span>
                 </div>`;
             });
-        };
+        }
 
-        const updateTables = (idx) => {
+        function updateTables(idx) {
             const sum = (r, e) => raw[r].slice(1, e + 2).reduce((a, b) => a + (Number(b) || 0), 0);
             const g = document.getElementById('ghg-table-body'); g.innerHTML = "";
             const exp = Number(raw[0][idx+1]) || 0; const tgt = Number(raw[1][idx+1]) || 0;
@@ -173,58 +262,9 @@
             [["투자비", Math.abs(iD), Math.abs(iC)], ["감축비", mD, mC], ["순비용", iD+mD, iC+mC]].forEach(r => {
                 c.innerHTML += `<tr><td>${r[0]}</td><td class="font-bold">${fmt(r[1], 'cost')}</td><td class="text-slate-400 font-semibold">${fmt(r[2], 'cost')}</td></tr>`;
             });
-        };
+        }
 
-        const updateChart = () => {
-            if (chart) chart.destroy();
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            let ds = [];
-            if (menu === 'roadmap') {
-                ds = [
-                    { label: '목표 배출량', data: raw[1].slice(1), backgroundColor: '#E2E8F0', type: 'bar' },
-                    { label: '투자 감축량', data: raw[2].slice(1), backgroundColor: '#00A1E0', type: 'bar' },
-                    { label: 'REC 구매', data: raw[3].slice(1), backgroundColor: '#93E1FF', type: 'bar' },
-                    { label: '가이드라인', data: raw[1].slice(1), borderColor: '#FF4D4D', type: 'line', pointStyle: 'line', borderDash: [5, 5], borderWidth: 1 }
-                ];
-            } else if (menu === 'methods') {
-                const cls = ['#00A1E0', '#00D1FF', '#74E8FF', '#B2F2FF', '#D9F7FF'];
-                for(let i=4; i<=8; i++) ds.push({ label: raw[i][0], data: raw[i].slice(1), backgroundColor: cls[i-4], type: 'bar' });
-            } else {
-                const yI=[], yR=[], yN=[];
-                for(let i=1; i<=years.length; i++) {
-                    let sI=0, sR=0; for(let r=9; r<=13; r++) { let v = Number(raw[r][i])||0; if(v<0) sI+=v; else sR+=v; }
-                    yI.push(Math.abs(sI)); yR.push(sR); yN.push(sI+sR);
-                }
-                ds = [{ label: '순비용', data: yN, type: 'bar', backgroundColor: yN.map(v => v < 0 ? '#FCA5A5' : '#93C5FD'), order: 2 },
-                      { label: '투자비', data: yI, borderColor: '#2563EB', type: 'line', tension: 0.3, borderWidth: 2, order: 1 },
-                      { label: '감축비', data: yR, borderColor: '#10B981', type: 'line', tension: 0.3, borderWidth: 2, order: 1 }];
-            }
-            chart = new Chart(ctx, {
-                data: { labels: years, datasets: ds },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    scales: { 
-                        x: { stacked: menu!=='costs', grid: { display: false }, ticks: { font: { size: 12 }, color: '#94A3B8' } },
-                        y: { stacked: menu!=='costs', grid: { color: '#F8FAFC' }, ticks: { callback: (v) => fmt(v, menu==='costs'?'cost':'ghg') } }
-                    },
-                    plugins: { 
-                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 6, font: { size: 11, weight: '700' } } },
-                        tooltip: { enabled: true, mode: 'index', intersect: false, callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.raw, menu==='costs'?'cost':'ghg')}` } }
-                    }
-                }
-            });
-        };
-
-        const updateMenu = (m) => {
-            menu = m; document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-            document.getElementById('menu-'+m).classList.add('active');
-            const icon = document.getElementById('summary-icon'); const border = document.getElementById('summary-border');
-            if(m === 'costs') { icon.className = "fas fa-coins text-amber-500"; border.style.borderColor = "#F59E0B"; }
-            else { icon.className = "fas fa-tree text-blue-500"; border.style.borderColor = "#00A1E0"; }
-            sync(document.getElementById('year-slider').value);
-        };
-
-        document.getElementById('year-slider').oninput = (e) => sync(e.target.value);
+        document.getElementById('year-slider').oninput = sync;
     </script>
 </body>
 </html>
