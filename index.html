@@ -3,92 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coway NetZero ESG Dashboard</title>
+    <title>COWAY NetZero Road map</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700&display=swap');
-        body { font-family: 'Pretendard', sans-serif; background: #fdfdfe; color: #1e293b; overflow-x: hidden; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.4); }
-        .card-shadow { box-shadow: 0 20px 40px -15px rgba(0,0,0,0.03); }
-        .gradient-bg { background: radial-gradient(circle at top right, #f8fafc 0%, #ffffff 100%); }
-        .nav-btn.active { background: #2563eb; color: white; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4); }
-        /* 애니메이션 효과 */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        
+        :root { --coway-blue: #00A1E0; --slate-soft: #F8FAFC; }
+        body { font-family: 'Pretendard', sans-serif; background: #FFFFFF; color: #1E293B; }
+        
+        /* 메뉴 버튼 커스텀 */
+        .nav-tab {
+            padding: 14px 32px; border-radius: 16px; font-weight: 700; font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #E2E8F0;
+            background: #FFFFFF; color: #64748B; cursor: pointer;
+        }
+        .nav-tab:hover { transform: translateY(-2px); border-color: var(--coway-blue); color: var(--coway-blue); }
+        .nav-tab.active { background: var(--coway-blue); color: #FFFFFF; border-color: var(--coway-blue); box-shadow: 0 12px 24px -8px rgba(0, 161, 224, 0.4); }
+
+        /* 테이블 및 카드 디자인 */
+        .glass-panel { background: #FFFFFF; border-radius: 32px; border: 1px solid #F1F5F9; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02); }
+        .data-row { border-bottom: 1px solid #F8FAFC; padding: 20px 0; transition: background 0.2s; }
+        .data-row:last-child { border: none; }
+        
+        /* 슬라이더 커스텀 */
+        #year-slider { -webkit-appearance: none; height: 6px; background: #E2E8F0; border-radius: 10px; }
+        #year-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: var(--coway-blue); border-radius: 50%; cursor: pointer; border: 4px solid #FFF; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body class="gradient-bg min-h-screen">
+<body class="p-6 md:p-12">
 
-    <div class="max-w-7xl mx-auto px-6 py-10">
-        <header class="flex flex-col md:flex-row justify-between items-end mb-12 fade-in">
-            <div>
-                <h1 class="text-4xl font-black tracking-tighter text-slate-900 mb-2">COWAY <span class="text-blue-600">NetZero</span> 2030</h1>
-                <p class="text-slate-400 font-light italic">Integrated ESG Performance & Roadmap Analysis</p>
-            </div>
-            <div class="mt-6 md:mt-0 flex space-x-3">
-                <label class="cursor-pointer group relative bg-white border-2 border-slate-900 px-6 py-3 rounded-2xl font-bold hover:bg-slate-900 hover:text-white transition-all duration-300">
-                    <i class="fas fa-cloud-upload-alt mr-2"></i> DATA UPLOAD
-                    <input type="file" id="excel-upload" class="hidden" accept=".xlsx">
-                </label>
-            </div>
+    <div class="max-w-[1400px] mx-auto">
+        <header class="flex justify-between items-center mb-16">
+            <h1 class="text-4xl font-extrabold tracking-tight" style="color: #00A1E0;">COWAY NetZero Road map</h1>
+            <label class="cursor-pointer bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-bold hover:bg-black transition-all shadow-xl">
+                <i class="fas fa-upload mr-3"></i> DATA LOAD
+                <input type="file" id="excel-upload" class="hidden" accept=".xlsx">
+            </label>
         </header>
 
-        <nav class="flex space-x-4 mb-10 fade-in" style="animation-delay: 0.1s;">
-            <button onclick="updateMenu('roadmap')" id="menu-roadmap" class="nav-btn active px-8 py-3.5 rounded-2xl font-bold transition-all">📊 로드맵</button>
-            <button onclick="updateMenu('methods')" id="menu-methods" class="nav-btn px-8 py-3.5 rounded-2xl font-bold transition-all text-slate-400 bg-white">🌱 감축수단</button>
-            <button onclick="updateMenu('costs')" id="menu-costs" class="nav-btn px-8 py-3.5 rounded-2xl font-bold transition-all text-slate-400 bg-white">💰 투자분석</button>
+        <nav class="flex space-x-6 mb-12">
+            <button onclick="updateMenu('roadmap')" id="menu-roadmap" class="nav-tab active">📊 로드맵</button>
+            <button onclick="updateMenu('methods')" id="menu-methods" class="nav-tab">🌱 감축수단</button>
+            <button onclick="updateMenu('costs')" id="menu-costs" class="nav-tab">💰 투자분석</button>
         </nav>
 
-        <div class="grid lg:grid-cols-3 gap-8 fade-in" style="animation-delay: 0.2s;">
-            
-            <div class="lg:col-span-2 glass p-8 rounded-[2.5rem] card-shadow relative">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xl font-bold text-slate-800" id="chart-title">데이터 추이 분석</h3>
-                    <div class="text-xs text-slate-400 bg-slate-50 px-3 py-1 rounded-full uppercase tracking-widest">Interactive Graph</div>
-                </div>
-                <div class="h-[400px] w-full">
+        <div class="grid grid-cols-12 gap-10 mb-12">
+            <div class="col-span-12 lg:col-span-9 glass-panel p-10">
+                <h3 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-8">Data Trend Analysis</h3>
+                <div class="h-[500px] w-full">
                     <canvas id="mainChart"></canvas>
                 </div>
             </div>
 
-            <div class="glass p-8 rounded-[2.5rem] card-shadow border-t-4 border-blue-600">
-                <h3 class="text-xl font-bold text-slate-800 mb-6"><i class="far fa-list-alt mr-2 text-blue-600"></i> 실적 상세 요약</h3>
-                <div class="space-y-6">
-                    <div class="bg-slate-50 p-6 rounded-3xl text-center">
-                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Selected Year</p>
-                        <div class="text-5xl font-black text-blue-600" id="display-year">----</div>
-                    </div>
-                    
-                    <div class="divide-y divide-slate-100" id="data-table-body">
-                        <div class="py-4 flex justify-between">
-                            <span class="text-slate-400 font-medium text-sm">항목을 불러오세요</span>
-                            <span class="font-bold">-</span>
-                        </div>
+            <div class="col-span-12 lg:col-span-3 space-y-8">
+                <div class="glass-panel p-8 text-center bg-slate-50 border-none">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Selected Year</p>
+                    <div class="text-6xl font-black" style="color: #00A1E0;" id="display-year">----</div>
+                </div>
+                <div class="glass-panel p-8">
+                    <h4 class="font-bold text-slate-800 mb-6 border-b pb-4">실적 상세 요약</h4>
+                    <div id="data-table-body">
+                        <p class="text-slate-300 text-sm">데이터를 업로드하세요</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-10 glass p-10 rounded-[2.5rem] card-shadow fade-in" style="animation-delay: 0.3s;">
-            <div class="flex justify-between mb-4 px-2 text-xs font-bold text-slate-300 uppercase tracking-widest">
+        <div class="glass-panel p-10 mb-10">
+            <div class="flex justify-between text-[11px] font-bold text-slate-400 uppercase mb-6">
                 <span>Start (2023)</span>
-                <span>NetZero Timeline Control</span>
-                <span>Target (2033)</span>
+                <span>Timeline Control</span>
+                <span>Target (2050)</span>
             </div>
-            <input type="range" id="year-slider" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-600" min="0" max="10" value="0">
+            <input type="range" id="year-slider" class="w-full" min="0" max="27" value="0">
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8 mt-10 fade-in" style="animation-delay: 0.4s;">
-            <div class="bg-blue-50/30 p-8 rounded-[2rem] border border-blue-100/50">
-                <h4 class="font-bold text-blue-800 mb-4"><i class="fas fa-info-circle mr-2"></i> 감축 실행 상세</h4>
-                <p id="red-info-text" class="text-slate-500 text-sm leading-relaxed font-light">-</p>
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="p-8 rounded-3xl border border-slate-100 bg-white">
+                <h5 class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">감축 상세 정보</h5>
+                <p id="red-info-text" class="text-slate-600 leading-relaxed font-light">-</p>
             </div>
-            <div class="bg-purple-50/30 p-8 rounded-[2rem] border border-purple-100/50">
-                <h4 class="font-bold text-purple-800 mb-4"><i class="fas fa-coins mr-2"></i> 투자/재무 상세</h4>
-                <p id="cost-info-text" class="text-slate-500 text-sm leading-relaxed font-light">-</p>
+            <div class="p-8 rounded-3xl border border-slate-100 bg-white">
+                <h5 class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">투자 상세 정보</h5>
+                <p id="cost-info-text" class="text-slate-600 leading-relaxed font-light">-</p>
             </div>
         </div>
     </div>
@@ -99,19 +99,14 @@
         let currentMenu = 'roadmap';
         let chart = null;
 
-        const ctx = document.getElementById('mainChart').getContext('2d');
-
         document.getElementById('excel-upload').addEventListener('change', function(e) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const data = new Uint8Array(e.target.result);
                 const wb = XLSX.read(data, {type: 'array'});
-                const sheet = wb.Sheets[wb.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(sheet, {header: 1});
-
+                const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1});
                 years = rows[0].slice(1);
                 rawRows = rows.slice(1);
-                
                 document.getElementById('year-slider').max = years.length - 1;
                 refresh();
             };
@@ -120,7 +115,7 @@
 
         function updateMenu(menu) {
             currentMenu = menu;
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'bg-white', 'text-slate-400'));
+            document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
             document.getElementById('menu-' + menu).classList.add('active');
             refresh();
         }
@@ -129,59 +124,71 @@
             if (rawRows.length === 0) return;
             const idx = parseInt(document.getElementById('year-slider').value);
             document.getElementById('display-year').innerText = years[idx];
-            
             updateChart();
             updateTable(idx);
-            
-            // 텍스트 정보 (14, 15행)
-            document.getElementById('red-info-text').innerText = rawRows[14][idx+1] || "정보 없음";
-            document.getElementById('cost-info-text').innerText = rawRows[15][idx+1] || "정보 없음";
+            document.getElementById('red-info-text').innerText = rawRows[14][idx+1] || "기재된 정보가 없습니다.";
+            document.getElementById('cost-info-text').innerText = rawRows[15][idx+1] || "기재된 정보가 없습니다.";
         }
 
         function updateChart() {
             if (chart) chart.destroy();
+            const ctx = document.getElementById('mainChart').getContext('2d');
             
             let datasets = [];
-            const commonOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                onHover: (event, activeElements) => {
-                    if (activeElements.length > 0) {
-                        updateTable(activeElements[0].index);
-                        document.getElementById('display-year').innerText = years[activeElements[0].index];
-                    }
-                }
-            };
-
             if (currentMenu === 'roadmap') {
                 datasets = [
-                    { label: '목표 배출량', data: rawRows[1].slice(1), backgroundColor: '#e2e8f0', type: 'bar' },
-                    { label: '투자 감축량', data: rawRows[2].slice(1), backgroundColor: '#3b82f6', type: 'bar' },
-                    { label: 'REC 구매', data: rawRows[3].slice(1), backgroundColor: '#93c5fd', type: 'bar' },
-                    { label: '목표 가이드라인', data: rawRows[1].slice(1), borderColor: '#ef4444', borderDash: [5, 5], type: 'line', fill: false }
+                    { label: '목표 배출량', data: rawRows[1].slice(1), backgroundColor: '#E2E8F0', type: 'bar' },
+                    { label: '투자 감축량', data: rawRows[2].slice(1), backgroundColor: '#00A1E0', type: 'bar' },
+                    { label: 'REC 구매', data: rawRows[3].slice(1), backgroundColor: '#93E1FF', type: 'bar' },
+                    { 
+                        label: '목표 가이드라인', data: rawRows[1].slice(1), 
+                        borderColor: '#FF4D4D', type: 'line', fill: false, pointStyle: 'line', borderDash: [5, 5] 
+                    }
                 ];
             } else if (currentMenu === 'methods') {
-                const colors = ['#10b981', '#34d399', '#6ee7b7', '#93c5fd', '#3b82f6'];
+                const colors = ['#00A1E0', '#00D1FF', '#74E8FF', '#B2F2FF', '#E0F9FF'];
                 for(let i=4; i<=8; i++) {
                     datasets.push({ label: rawRows[i][0], data: rawRows[i].slice(1), backgroundColor: colors[i-4], type: 'bar' });
                 }
             } else {
-                const inv = years.map((_, i) => rawRows.slice(9, 14).reduce((a, r) => a + (r[i+1] < 0 ? r[i+1] : 0), 0));
-                const red = years.map((_, i) => rawRows.slice(9, 14).reduce((a, r) => a + (r[i+1] > 0 ? r[i+1] : 0), 0));
+                // 투자 분석 누적치 로직 적용
+                let cumInv = 0; let cumRed = 0;
+                const invData = []; const redData = [];
+                for(let i=1; i<rawData[9].length; i++) {
+                    let yearInv = 0; let yearRed = 0;
+                    for(let r=9; r<=13; r++) {
+                        const val = Number(rawRows[r][i]) || 0;
+                        if(val < 0) yearInv += val; else yearRed += val;
+                    }
+                    cumInv += yearInv; cumRed += yearRed;
+                    invData.push(cumInv); redData.push(cumRed);
+                }
                 datasets = [
-                    { label: '누적 투자비용', data: inv, borderColor: '#2563eb', type: 'line', tension: 0.4 },
-                    { label: '연간 감축비용', data: red, borderColor: '#10b981', type: 'line', tension: 0.4 }
+                    { label: '누적 투자액', data: invData, borderColor: '#00A1E0', type: 'line', tension: 0.3, fill: false },
+                    { label: '누적 운영비', data: redData, borderColor: '#64748B', type: 'line', tension: 0.3, fill: false }
                 ];
             }
 
             chart = new Chart(ctx, {
-                type: 'bar',
                 data: { labels: years, datasets },
                 options: {
-                    ...commonOptions,
-                    scales: { x: { stacked: currentMenu !== 'costs' }, y: { stacked: currentMenu !== 'costs' } },
-                    plugins: { legend: { position: 'top', align: 'end', labels: { boxWidth: 10, usePointStyle: true } } }
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { 
+                        x: { 
+                            stacked: currentMenu !== 'costs', 
+                            grid: { display: false },
+                            ticks: { maxRotation: 0, minRotation: 0, font: { size: 11 } } 
+                        },
+                        y: { 
+                            stacked: currentMenu !== 'costs', 
+                            grid: { color: '#F1F5F9' },
+                            ticks: { font: { size: 11 } }
+                        }
+                    },
+                    plugins: { 
+                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 10, font: { size: 12, weight: 'bold' } } },
+                        tooltip: { enabled: true, backgroundColor: '#1E293B', padding: 12 }
+                    }
                 }
             });
         }
@@ -189,28 +196,28 @@
         function updateTable(idx) {
             const container = document.getElementById('data-table-body');
             container.innerHTML = "";
-            
-            const rows = [];
+            let rows = [];
             if (currentMenu !== 'costs') {
                 rows.push(["목표 배출량", rawRows[1][idx+1]]);
                 rows.push(["예상 배출량", rawRows[0][idx+1]]);
-                rows.push(["확보 감축량", (Number(rawRows[2][idx+1]) || 0) + (Number(rawRows[3][idx+1]) || 0)]);
-                rows.push(["REC 조달량", rawRows[3][idx+1]]);
+                rows.push(["총 감축량", (Number(rawRows[2][idx+1]) || 0) + (Number(rawRows[3][idx+1]) || 0)]);
             } else {
-                const cInv = rawRows.slice(9, 14).reduce((a, r) => a + (r[idx+1] < 0 ? r[idx+1] : 0), 0);
-                const cRed = rawRows.slice(9, 14).reduce((a, r) => a + (r[idx+1] > 0 ? r[idx+1] : 0), 0);
-                rows.push(["당해 투자액", cInv.toLocaleString() + " 억"]);
-                rows.push(["운영 비용", cRed.toLocaleString() + " 억"]);
-                rows.push(["합계(Net)", (cInv + cRed).toLocaleString() + " 억"]);
+                let curInv = 0; let curRed = 0;
+                for(let r=9; r<=13; r++) {
+                    const val = Number(rawRows[r][idx+1]) || 0;
+                    if(val < 0) curInv += val; else curRed += val;
+                }
+                rows.push(["당해 투자액", curInv.toLocaleString() + " 억"]);
+                rows.push(["당해 운영비", curRed.toLocaleString() + " 억"]);
+                rows.push(["연도별 순비용", (curInv + curRed).toLocaleString() + " 억"]);
             }
 
             rows.forEach(r => {
                 container.innerHTML += `
-                    <div class="py-5 flex justify-between items-center group transition-all hover:bg-blue-50/50 px-2 rounded-xl">
-                        <span class="text-slate-500 font-medium text-sm">${r[0]}</span>
-                        <span class="font-extrabold text-slate-900">${r[1] ? r[1].toLocaleString() : 0}</span>
-                    </div>
-                `;
+                    <div class="data-row flex justify-between items-center">
+                        <span class="text-slate-400 font-medium text-sm">${r[0]}</span>
+                        <span class="font-bold text-slate-800">${r[1] ? r[1].toLocaleString() : 0}</span>
+                    </div>`;
             });
         }
 
