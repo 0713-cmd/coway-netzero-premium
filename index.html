@@ -11,93 +11,89 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap');
         :root { --coway-blue: #00A1E0; }
-        body { font-family: 'Pretendard', sans-serif; background: #FFFFFF; color: #1E293B; letter-spacing: -0.03em; }
+        body { font-family: 'Pretendard', sans-serif; background: #FFFFFF; color: #1E293B; letter-spacing: -0.04em; }
         
-        /* 메뉴 버튼: 더 크고 세련된 프리미엄 디자인 */
         .nav-tab {
-            padding: 18px 42px; border-radius: 24px; font-weight: 900; font-size: 1.2rem;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 2px solid #F1F5F9;
-            background: #FFFFFF; color: #94A3B8; cursor: pointer;
+            padding: 18px 42px; border-radius: 20px; font-weight: 800; font-size: 1.2rem;
+            transition: all 0.3s ease; border: 2px solid #F1F5F9; background: #F8FAFC; color: #94A3B8; cursor: pointer;
         }
-        .nav-tab.active { background: var(--coway-blue); color: #FFFFFF; border-color: var(--coway-blue); transform: scale(1.05); box-shadow: 0 20px 40px rgba(0, 161, 224, 0.3); }
+        .nav-tab.active { background: var(--coway-blue); color: #FFFFFF; border-color: var(--coway-blue); transform: scale(1.05); box-shadow: 0 12px 24px rgba(0, 161, 224, 0.3); }
 
-        .glass-panel { background: #FFFFFF; border-radius: 48px; border: 1px solid #F1F5F9; box-shadow: 0 15px 50px rgba(0, 0, 0, 0.04); }
-        .data-row { padding: 22px 0; border-bottom: 2px solid #F8FAFC; display: flex; justify-content: space-between; align-items: center; }
+        .glass-panel { background: #FFFFFF; border-radius: 40px; border: 1px solid #F1F5F9; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02); }
+        .data-row { padding: 18px 0; border-bottom: 1px solid #F8FAFC; display: flex; justify-content: space-between; align-items: center; }
         .data-row:last-child { border: none; }
         
-        /* 슬라이더 커스텀 */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 12px; cursor: pointer; background: #E2E8F0; border-radius: 10px; }
-        input[type=range]::-webkit-slider-thumb { height: 36px; width: 36px; border-radius: 50%; background: var(--coway-blue); cursor: pointer; -webkit-appearance: none; margin-top: -12px; border: 6px solid #FFF; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 10px; cursor: pointer; background: #E2E8F0; border-radius: 5px; }
+        input[type=range]::-webkit-slider-thumb { height: 34px; width: 34px; border-radius: 50%; background: var(--coway-blue); cursor: pointer; -webkit-appearance: none; margin-top: -12px; border: 5px solid #FFF; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body class="p-10 md:p-20">
+<body class="p-8 md:p-16">
 
-    <div class="max-w-[1650px] mx-auto">
-        <header class="flex justify-between items-center mb-20">
-            <h1 class="text-6xl font-black" style="color: var(--coway-blue);">COWAY NetZero Road map</h1>
-            <label class="cursor-pointer bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black hover:scale-105 transition-all shadow-2xl flex items-center gap-4 text-xl">
-                <i class="fas fa-file-excel"></i> DATA LOAD
+    <div class="max-w-[1600px] mx-auto">
+        <header class="flex justify-between items-center mb-16">
+            <h1 class="text-5xl font-black" style="color: var(--coway-blue);">COWAY NetZero Road map</h1>
+            <label class="cursor-pointer bg-slate-900 text-white px-10 py-4 rounded-3xl font-black hover:bg-black transition-all shadow-xl flex items-center gap-3">
+                <i class="fas fa-file-excel text-xl"></i> DATA LOAD
                 <input type="file" id="excel-upload" class="hidden" accept=".xlsx">
             </label>
         </header>
 
-        <nav class="flex space-x-10 mb-16">
-            <button onclick="updateMenu('roadmap')" id="menu-roadmap" class="nav-tab active">📊 감축 로드맵</button>
-            <button onclick="updateMenu('methods')" id="menu-methods" class="nav-tab">🌱 수단별 상세</button>
+        <nav class="flex space-x-6 mb-12">
+            <button onclick="updateMenu('roadmap')" id="menu-roadmap" class="nav-tab active">📊 로드맵</button>
+            <button onclick="updateMenu('methods')" id="menu-methods" class="nav-tab">🌱 감축수단</button>
             <button onclick="updateMenu('costs')" id="menu-costs" class="nav-tab">💰 투자분석</button>
         </nav>
 
-        <div class="grid grid-cols-12 gap-16 mb-20">
-            <div class="col-span-12 lg:col-span-9 glass-panel p-16">
-                <h3 class="text-xl font-black text-slate-300 uppercase tracking-[0.4em] mb-12">Interactive Roadmap Performance</h3>
-                <div class="h-[600px] w-full">
+        <div class="grid grid-cols-12 gap-10 mb-14">
+            <div class="col-span-12 lg:col-span-10 glass-panel p-12">
+                <div class="h-[550px] w-full">
                     <canvas id="mainChart"></canvas>
                 </div>
             </div>
 
-            <div class="col-span-12 lg:col-span-3 flex flex-col gap-10">
-                <div class="glass-panel p-12 text-center bg-gradient-to-br from-blue-50 to-white border-blue-200 border-4">
-                    <p class="text-sm font-black text-blue-400 uppercase mb-4 tracking-widest">Selected Focus</p>
-                    <div class="text-8xl font-black italic" style="color: var(--coway-blue);" id="display-year">----</div>
+            <div class="col-span-12 lg:col-span-2 flex flex-col gap-6">
+                <div class="glass-panel p-8 text-center bg-slate-50 border-none">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Focus Year</p>
+                    <div class="text-5xl font-black italic" style="color: var(--coway-blue);" id="display-year">----</div>
                 </div>
-                <div class="glass-panel p-12 flex-grow">
-                    <h4 class="font-black text-2xl text-slate-800 mb-10 flex items-center gap-3">
-                        <i class="fas fa-database text-blue-500"></i> 실적 상세 요약
+                <div class="glass-panel p-8 flex-grow border-t-4 border-blue-500">
+                    <h4 class="font-black text-base text-slate-800 mb-6 flex items-center gap-2">
+                        <i id="summary-icon" class="fas fa-leaf text-blue-500"></i> 실적 상세
                     </h4>
-                    <div id="data-table-body" class="space-y-2">
-                        <p class="text-slate-300 text-lg font-bold italic">파일을 업로드해주세요.</p>
+                    <div id="data-table-body" class="space-y-1 text-sm">
+                        <p class="text-slate-300 italic">업로드 대기</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="glass-panel p-14 mb-20">
-            <div class="flex justify-between text-sm font-black text-slate-400 mb-10 px-4">
-                <span>START 2023</span>
-                <span class="text-blue-500 tracking-[0.5em]">NETZERO TIMELINE CENTER</span>
-                <span>TARGET 2050</span>
+        <div class="glass-panel p-12 mb-14">
+            <div class="flex justify-between text-xs font-black text-slate-300 mb-8 px-2 uppercase tracking-widest">
+                <span>Start 2023</span>
+                <span class="text-blue-400">NetZero Timeline Control Center</span>
+                <span>Target 2050</span>
             </div>
             <input type="range" id="year-slider" min="0" max="27" value="0">
-            <div class="flex justify-between px-2 mt-6 text-sm font-black text-slate-300">
-                <span>2023</span><span>2025</span><span>2030</span><span>2035</span><span>2040</span><span>2045</span><span>2050</span>
+            <div class="flex justify-between px-1 mt-6 text-sm font-black text-slate-800">
+                <span>2023</span><span>2030</span><span>2035</span><span>2040</span><span>2045</span><span>2050</span>
             </div>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-12">
-            <div class="p-12 rounded-[56px] border-4 border-blue-50 bg-white shadow-xl flex flex-col justify-center">
-                <h5 class="flex items-center gap-4 text-blue-600 font-black text-2xl mb-8">
-                    <span class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-3xl">🌿</span> 
-                    온실가스 감축 상세 정보
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="p-10 rounded-[3rem] border-2 border-blue-50 bg-gradient-to-br from-white to-blue-50/20 shadow-sm">
+                <h5 class="flex items-center gap-3 text-blue-600 font-black text-xl mb-6">
+                    <span class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">🌿</span> 
+                    온실가스 데이터 세부 현황
                 </h5>
-                <p id="red-info-text" class="text-slate-500 text-xl leading-relaxed font-bold">-</p>
+                <p id="red-info-text" class="text-slate-500 leading-relaxed font-bold text-lg min-h-[60px]">-</p>
             </div>
-            <div class="p-12 rounded-[56px] border-4 border-amber-50 bg-white shadow-xl flex flex-col justify-center">
-                <h5 class="flex items-center gap-4 text-amber-600 font-black text-2xl mb-8">
-                    <span class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-3xl">💎</span> 
-                    투자 및 비용 상세 정보
+            <div class="p-10 rounded-[3rem] border-2 border-amber-50 bg-gradient-to-br from-white to-amber-50/20 shadow-sm">
+                <h5 class="flex items-center gap-3 text-amber-600 font-black text-xl mb-6">
+                    <span class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center">💰</span> 
+                    투자 및 손익 데이터 세부 현황
                 </h5>
-                <p id="cost-info-text" class="text-slate-500 text-xl leading-relaxed font-bold">-</p>
+                <p id="cost-info-text" class="text-slate-500 leading-relaxed font-bold text-lg min-h-[60px]">-</p>
             </div>
         </div>
     </div>
@@ -113,7 +109,7 @@
             reader.onload = function(e) {
                 const data = new Uint8Array(e.target.result);
                 const wb = XLSX.read(data, {type: 'array'});
-                const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.Sheets[wb.SheetNames[0]] ? wb.SheetNames[0] : wb.SheetNames[0]], {header: 1});
+                const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1});
                 years = rows[0].slice(1);
                 rawRows = rows.slice(1);
                 document.getElementById('year-slider').max = years.length - 1;
@@ -126,6 +122,12 @@
             currentMenu = menu;
             document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
             document.getElementById('menu-' + menu).classList.add('active');
+            
+            // 아이콘 변경 로직
+            const icon = document.getElementById('summary-icon');
+            if(menu === 'costs') { icon.className = "fas fa-coins text-amber-500"; }
+            else { icon.className = "fas fa-tree text-blue-500"; }
+            
             refresh();
         }
 
@@ -135,8 +137,10 @@
             document.getElementById('display-year').innerText = years[idx];
             updateChart();
             updateTable(idx);
-            document.getElementById('red-info-text').innerText = rawRows[14][idx+1] || "기록된 상세 내용이 없습니다.";
-            document.getElementById('cost-info-text').innerText = rawRows[15][idx+1] || "기록된 상세 내용이 없습니다.";
+            
+            // 하단 텍스트 데이터 (14, 15행)
+            document.getElementById('red-info-text').innerText = rawRows[14][idx+1] || "기재된 상세 내역이 없습니다.";
+            document.getElementById('cost-info-text').innerText = rawRows[15][idx+1] || "기재된 상세 내역이 없습니다.";
         }
 
         function updateChart() {
@@ -149,7 +153,10 @@
                     { label: '목표 배출량', data: rawRows[1].slice(1), backgroundColor: '#E2E8F0', type: 'bar' },
                     { label: '투자 감축량', data: rawRows[2].slice(1), backgroundColor: '#00A1E0', type: 'bar' },
                     { label: 'REC 구매', data: rawRows[3].slice(1), backgroundColor: '#93E1FF', type: 'bar' },
-                    { label: '넷제로 가이드라인', data: rawRows[1].slice(1), borderColor: '#FF4D4D', type: 'line', pointStyle: 'line', borderDash: [5, 5], borderWidth: 4 }
+                    { 
+                        label: '가이드라인', data: rawRows[1].slice(1), 
+                        borderColor: '#FF4D4D', type: 'line', pointStyle: 'line', borderWidth: 3, borderDash: [5, 5] 
+                    }
                 ];
             } else if (currentMenu === 'methods') {
                 const colors = ['#00A1E0', '#00D1FF', '#74E8FF', '#B2F2FF', '#D9F7FF'];
@@ -157,24 +164,25 @@
                     datasets.push({ label: rawRows[i][0], data: rawRows[i].slice(1), backgroundColor: colors[i-4], type: 'bar' });
                 }
             } else {
-                // 투자분석: 당해년도는 선(Line), 누적치는 막대(Bar)
-                let cumInvArr = []; let cumRedArr = []; let yInvArr = []; let yRedArr = [];
-                let cI = 0; let cR = 0;
-                for(let i=1; i<=years.length; i++){
-                    let yI = 0; let yR = 0;
-                    for(let r=9; r<=13; r++){
+                // 투자분석: 이미지 image_954968.png 로직 반영
+                const yInv = []; const yRed = []; const yNet = [];
+                for(let i=1; i<=years.length; i++) {
+                    let invSum = 0; let redSum = 0;
+                    for(let r=9; r<=13; r++) {
                         const v = Number(rawRows[r][i]) || 0;
-                        if(v < 0) yI += v; else yR += v;
+                        if(v < 0) invSum += v; else redSum += v;
                     }
-                    yInvArr.push(Math.abs(yI)); yRedArr.push(yR);
-                    cI += Math.abs(yI); cR += yR;
-                    cumInvArr.push(cI); cumRedArr.push(cR);
+                    yInv.push(Math.abs(invSum)); // 선 그래프용 (투자비)
+                    yRed.push(redSum); // 선 그래프용 (감축비)
+                    yNet.push(invSum + redSum); // 막대 그래프용 (순비용)
                 }
                 datasets = [
-                    { label: '누적 투자총액(누계)', data: cumInvArr, backgroundColor: 'rgba(0,161,224,0.15)', type: 'bar', order: 2 },
-                    { label: '누적 운영비용(누계)', data: cumRedArr, backgroundColor: 'rgba(203,213,225,0.4)', type: 'bar', order: 2 },
-                    { label: '당해 투자액(연간)', data: yInvArr, borderColor: '#00A1E0', borderWidth: 4, type: 'line', order: 1, tension: 0.3 },
-                    { label: '당해 운영비(연간)', data: yRedArr, borderColor: '#F59E0B', borderWidth: 4, type: 'line', order: 1, tension: 0.3 }
+                    { 
+                        label: '연도별 순비용', data: yNet, type: 'bar',
+                        backgroundColor: yNet.map(v => v < 0 ? '#F87171' : '#818CF8'), order: 2
+                    },
+                    { label: '투자 비용', data: yInv, borderColor: '#2563EB', type: 'line', tension: 0.3, borderWidth: 4, order: 1 },
+                    { label: '감축 비용', data: yRed, borderColor: '#10B981', type: 'line', tension: 0.3, borderWidth: 4, order: 1 }
                 ];
             }
 
@@ -188,17 +196,17 @@
                         x: { 
                             stacked: currentMenu !== 'costs', 
                             grid: { display: false },
-                            ticks: { font: { size: 15, weight: '900' }, color: '#1E293B', padding: 15 } 
+                            ticks: { font: { size: 14, weight: '900' }, color: '#1E293B', padding: 15 } 
                         },
                         y: { 
                             stacked: currentMenu !== 'costs', 
-                            grid: { color: '#F1F5F9', borderDash: [5, 5] },
-                            ticks: { font: { size: 13, weight: '700' } }
+                            grid: { color: '#F1F5F9' },
+                            ticks: { font: { size: 12, weight: 'bold' } }
                         }
                     },
                     plugins: { 
-                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 12, font: { size: 14, weight: '900' }, padding: 30 } },
-                        tooltip: { backgroundColor: '#1E293B', padding: 20, titleFont: { size: 16, weight: '900' }, bodyFont: { size: 14 } }
+                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 10, font: { size: 13, weight: 'bold' } } },
+                        tooltip: { backgroundColor: '#1E293B', padding: 12 }
                     }
                 }
             });
@@ -208,36 +216,33 @@
             const container = document.getElementById('data-table-body');
             container.innerHTML = "";
             let rows = [];
-            const unit = currentMenu === 'costs' ? '억원' : '톤';
+            const isCost = currentMenu === 'costs';
 
-            if (currentMenu !== 'costs') {
+            if (!isCost) {
                 rows.push(["목표 배출량", rawRows[1][idx+1]]);
                 rows.push(["예상 배출량", rawRows[0][idx+1]]);
-                rows.push(["투자 감축량", rawRows[2][idx+1]]);
-                rows.push(["REC 조달량", rawRows[3][idx+1]]);
+                rows.push(["실제 감축량", (Number(rawRows[2][idx+1]) || 0) + (Number(rawRows[3][idx+1]) || 0)]);
             } else {
-                let curI = 0; let curR = 0; let cumI = 0; let cumR = 0;
-                for(let i=1; i<=idx+1; i++){
-                    let yI = 0; let yR = 0;
-                    for(let r=9; r<=13; r++){
-                        const v = Number(rawRows[r][i]) || 0;
-                        if(v < 0) yI += v; else yR += v;
-                    }
-                    if(i === idx+1) { curI = yI; curR = yR; }
-                    cumI += yI; cumR += yR;
+                let curInv = 0; let curRed = 0;
+                for(let r=9; r<=13; r++) {
+                    const val = Number(rawRows[r][idx+1]) || 0;
+                    if(val < 0) curInv += val; else curRed += val;
                 }
-                rows.push(["당해 투자액", Math.abs(curI)]);
-                rows.push(["당해 운영비", curR]);
-                rows.push(["누적 투자액", Math.abs(cumI)]);
-                rows.push(["누적 운영비", cumR]);
+                rows.push(["투자 비용", Math.abs(curInv)]);
+                rows.push(["감축 비용", curRed]);
+                rows.push(["연도별 순비용", (curInv + curRed)]);
             }
 
             rows.forEach(r => {
-                const val = typeof r[1] === 'number' ? Math.round(r[1]).toLocaleString() : r[1];
+                let val = Number(r[1]) || 0;
+                // 소수점 처리: 비용(억 원)만 소수점 1자리, 나머지는 정수
+                const formattedVal = isCost ? val.toFixed(1) : Math.round(val).toLocaleString();
+                const unit = isCost ? " 억 원" : " 톤";
+
                 container.innerHTML += `
                     <div class="data-row">
-                        <span class="text-slate-400 font-black text-base">${r[0]}</span>
-                        <span class="font-black text-slate-800 text-2xl">${val}<span class="text-xs text-slate-300 ml-1">${unit}</span></span>
+                        <span class="text-slate-400 font-bold text-xs">${r[0]}</span>
+                        <span class="font-black text-slate-800 text-base">${formattedVal}<span class="text-[10px] ml-1 opacity-40">${unit}</span></span>
                     </div>`;
             });
         }
