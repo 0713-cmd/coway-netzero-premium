@@ -71,8 +71,7 @@
         <div class="glass-panel p-8 mb-8">
             <div class="flex justify-between text-[10px] font-black text-slate-300 mb-6 uppercase tracking-widest">
                 <span>Start 2023</span>
-                <span>NetZero Timeline Control Center</span>
-                <span>Target 2050</span>
+                <span></span> <span>Target 2050</span>
             </div>
             <input type="range" id="year-slider" min="0" max="27" value="0">
             <div class="flex justify-between mt-4 text-xs font-medium text-slate-500">
@@ -129,12 +128,11 @@
                     const data = new Uint8Array(e.target.result);
                     const wb = XLSX.read(data, {type: 'array'});
                     const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header: 1});
-                    if (!rows || rows.length < 1) throw "Data Error";
                     years = rows[0].slice(1);
                     rawRows = rows.slice(1);
                     document.getElementById('year-slider').max = years.length - 1;
                     refresh();
-                } catch(err) { alert("엑셀 형식이 올바르지 않거나 데이터가 없습니다."); }
+                } catch(err) { alert("데이터 로드 실패: 엑셀 형식을 확인하세요."); }
             };
             r.readAsArrayBuffer(e.target.files[0]);
         });
@@ -143,10 +141,6 @@
             currentMenu = m;
             document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
             document.getElementById('menu-' + m).classList.add('active');
-            const icon = document.getElementById('summary-icon');
-            const border = document.getElementById('summary-border');
-            if(m === 'costs') { icon.className = "fas fa-coins text-amber-500"; border.style.borderColor = "#F59E0B"; }
-            else { icon.className = "fas fa-leaf text-blue-500"; border.style.borderColor = "#00A1E0"; }
             refresh();
         }
 
@@ -194,7 +188,7 @@
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
-                    onHover: (e, el) => { if(el.length > 0) { document.getElementById('year-slider').value = el[0].index; refresh(); } },
+                    onHover: null, // 마우스 호버로 바가 움직이는 문제 해결 (오직 슬라이더로만!)
                     scales: { 
                         x: { stacked: currentMenu !== 'costs', grid: { display: false }, ticks: { font: { size: 12, weight: '400' }, color: '#94A3B8' } },
                         y: { stacked: currentMenu !== 'costs', grid: { color: '#F8FAFC' }, ticks: { callback: (v) => format(v, currentMenu==='costs'?'cost':'ghg') } }
@@ -212,17 +206,18 @@
             list.innerHTML = "";
             let items = []; const unit = currentMenu === 'costs' ? '억' : '톤';
             if (currentMenu !== 'costs') {
-                items.push(["목표 배출량", rawRows[1][idx+1]]);
-                items.push(["예상 배출량", rawRows[0][idx+1]]);
-                items.push(["실제 감축량", (Number(rawRows[2][idx+1]) || 0) + (Number(rawRows[3][idx+1]) || 0)]);
+                const exp = Number(rawRows[0][idx+1]) || 0;
+                const tgt = Number(rawRows[1][idx+1]) || 0;
+                const red = (Number(rawRows[2][idx+1]) || 0) + (Number(rawRows[3][idx+1]) || 0);
+                items.push(["목표 배출량", tgt], ["예상 배출량", exp], ["실제 배출량", exp - red], ["실제 감축량", red], ["감축 필요량", exp - tgt]);
             } else {
                 let i = 0; let r = 0; for(let n=9; n<=13; n++) { let v = Number(rawRows[n][idx+1]) || 0; if(v < 0) i += v; else r += v; }
-                items.push(["투자 비용", Math.abs(i)]); items.push(["감축 비용", r]); items.push(["순비용", i + r]);
+                items.push(["투자 비용", Math.abs(i)], ["감축 비용", r], ["순비용", i + r]);
             }
             items.forEach(item => {
                 list.innerHTML += `<div class="flex justify-between items-center py-2 border-b border-slate-50">
                     <span class="text-slate-400 font-bold text-xs">${item[0]}</span>
-                    <span class="font-black text-slate-800 text-base">${format(item[1], currentMenu==='costs'?'cost':'ghg')}<span class="text-[10px] ml-1 opacity-30">${unit}</span></span>
+                    <span class="font-black text-slate-800 text-sm">${format(item[1], currentMenu==='costs'?'cost':'ghg')}<span class="text-[8px] ml-1 opacity-30">${unit}</span></span>
                 </div>`;
             });
         }
@@ -230,9 +225,15 @@
         function updateTables(idx) {
             const getC = (ri, ei) => rawRows[ri].slice(1, ei + 2).reduce((a, b) => a + (Number(b) || 0), 0);
             const gBody = document.getElementById('ghg-table-body'); gBody.innerHTML = "";
-            [["넷제로 목표", rawRows[1][idx+1], "-"], ["예상 배출량", rawRows[0][idx+1], getC(0, idx)], ["실제 감축량", (Number(rawRows[2][idx+1]) + Number(rawRows[3][idx+1])), getC(2, idx) + getC(3, idx)]].forEach(r => {
+            const exp = Number(rawRows[0][idx+1]) || 0;
+            const tgt = Number(rawRows[1][idx+1]) || 0;
+            const red = (Number(rawRows[2][idx+1]) || 0) + (Number(rawRows[3][idx+1]) || 0);
+            const cumRed = (getC(2, idx) + getC(3, idx));
+            
+            [["목표 배출량", tgt, "-"], ["예상 배출량", exp, getC(0, idx)], ["실제 배출량", exp - red, getC(0, idx) - cumRed], ["실제 감축량", red, cumRed], ["감축 필요량", exp - tgt, getC(0, idx) - getC(1, idx)]].forEach(r => {
                 gBody.innerHTML += `<tr><td>${r[0]}</td><td class="font-bold">${format(r[1], 'ghg')}</td><td class="text-slate-400">${r[2]==='-'?'-':format(r[2], 'ghg')}</td></tr>`;
             });
+
             const cBody = document.getElementById('cost-table-body'); cBody.innerHTML = "";
             let iD = 0; let rD = 0; let iC = 0; let rC = 0;
             for(let r=9; r<=13; r++) {
