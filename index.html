@@ -13,12 +13,12 @@
         :root { --cw-blue: #00A1E0; }
         body { font-family: 'Pretendard', sans-serif; background: #F8FAFC; color: #1E293B; letter-spacing: -0.04em; }
         
-        /* 전략 스위치 버튼 */
+        /* 전략 버튼 */
         .strategy-btn {
-            padding: 14px 32px; border-radius: 14px; font-weight: 800; font-size: 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #E2E8F0; background: #FFFFFF; color: #94A3B8;
+            padding: 12px 28px; border-radius: 12px; font-weight: 800; font-size: 0.95rem;
+            transition: all 0.3s ease; border: 1px solid #E2E8F0; background: #FFFFFF; color: #94A3B8;
         }
-        .strategy-btn.active { background: #1E293B; color: #FFFFFF; border-color: #1E293B; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .strategy-btn.active { background: #1E293B; color: #FFFFFF; border-color: #1E293B; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
         .nav-tab {
             padding: 16px 36px; border-radius: 16px; font-weight: 800; font-size: 1.1rem;
@@ -28,98 +28,97 @@
 
         .glass-panel { background: #FFFFFF; border-radius: 32px; border: 1px solid #E2E8F0; height: 100%; display: flex; flex-direction: column; }
         .info-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .info-table th { background: #F1F5F9; color: #475569; padding: 12px; font-weight: 700; border-bottom: 1px solid #E2E8F0; text-align: center; }
-        .info-table td { padding: 12px; border-bottom: 1px solid #F1F5F9; text-align: center; }
+        .info-table th { background: #F1F5F9; color: #475569; padding: 10px; font-weight: 700; border-bottom: 1px solid #E2E8F0; text-align: center; }
+        .info-table td { padding: 10px; border-bottom: 1px solid #F1F5F9; text-align: center; }
         
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: #E2E8F0; border-radius: 4px; }
         input[type=range]::-webkit-slider-thumb { height: 28px; width: 28px; border-radius: 50%; background: var(--cw-blue); cursor: pointer; -webkit-appearance: none; margin-top: -10px; border: 4px solid #FFF; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         
-        /* 2033년 최적화: 그래프가 너무 퍼지지 않게 너비 제한 */
-        .chart-wrap { transition: all 0.5s ease-in-out; margin: 0 auto; width: 100%; }
-        .chart-midterm { max-width: 800px; } 
+        .chart-container { transition: max-width 0.5s ease-in-out; margin: 0 auto; width: 100%; }
+        .chart-midterm { max-width: 750px; } 
     </style>
 </head>
 <body class="p-6 md:p-10">
 
     <div class="max-w-[1600px] mx-auto">
-        <header class="flex justify-between items-end mb-12">
+        <header class="flex justify-between items-end mb-10">
             <div>
-                <h1 class="text-4xl font-black mb-6" style="color: var(--cw-blue);">COWAY NetZero Road map</h1>
-                <div class="flex space-x-3">
+                <h1 class="text-4xl font-black mb-4" style="color: var(--cw-blue);">COWAY NetZero Road map</h1>
+                <div class="flex space-x-2">
                     <button onclick="updatePeriod(2033)" id="btn-2033" class="strategy-btn">📍 중기 전략 (~2033)</button>
                     <button onclick="updatePeriod(2050)" id="btn-2050" class="strategy-btn active">🌐 장기 로드맵 (~2050)</button>
                 </div>
             </div>
-            <label class="cursor-pointer bg-slate-900 text-white px-10 py-4 rounded-2xl font-bold hover:bg-black transition-all flex items-center gap-2 shadow-xl">
+            <label class="cursor-pointer bg-slate-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all flex items-center gap-2 shadow-lg">
                 <i class="fas fa-file-excel"></i> DATA LOAD
                 <input type="file" id="excel-upload" class="hidden" accept=".xlsx">
             </label>
         </header>
 
-        <nav class="flex space-x-4 mb-10">
+        <nav class="flex space-x-4 mb-8">
             <button onclick="updateMenu('roadmap')" id="menu-roadmap" class="nav-tab active">📊 로드맵</button>
             <button onclick="updateMenu('methods')" id="menu-methods" class="nav-tab">🌱 감축수단</button>
             <button onclick="updateMenu('costs')" id="menu-costs" class="nav-tab">💰 투자분석</button>
         </nav>
 
-        <div class="grid grid-cols-12 gap-8 mb-10">
+        <div class="grid grid-cols-12 gap-6 mb-8">
             <div class="col-span-12 lg:col-span-3 flex flex-col gap-6">
-                <div class="glass-panel p-8 text-center bg-blue-50/30 border-blue-100">
-                    <p class="text-[11px] font-black text-blue-400 uppercase tracking-widest mb-2">Focus Year</p>
-                    <div class="text-7xl font-black italic" style="color: var(--cw-blue);" id="display-year">----</div>
+                <div class="glass-panel p-6 text-center bg-blue-50/30 border-blue-100">
+                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Focus Year</p>
+                    <div class="text-6xl font-black italic" style="color: var(--cw-blue);" id="display-year">----</div>
                 </div>
-                <div class="glass-panel p-8 border-t-4" id="summary-border" style="border-color: var(--cw-blue);">
-                    <h4 class="font-black text-lg text-slate-800 mb-8 flex items-center gap-2">
+                <div class="glass-panel p-6 border-t-4" id="summary-border" style="border-color: var(--cw-blue);">
+                    <h4 class="font-black text-sm text-slate-800 mb-6 flex items-center gap-2">
                         <i id="summary-icon" class="fas fa-leaf text-blue-500"></i> 실적 상세
                     </h4>
                     <div id="summary-data-list" class="space-y-4"></div>
                 </div>
             </div>
-            <div class="col-span-12 lg:col-span-9 glass-panel p-10 flex items-center justify-center">
-                <div id="chart-wrapper" class="chart-wrap h-[520px]">
+            <div class="col-span-12 lg:col-span-9 glass-panel p-8">
+                <div id="chart-wrapper" class="chart-container h-[500px]">
                     <canvas id="mainChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="glass-panel p-10 mb-10">
-            <div class="flex justify-between text-[11px] font-black text-slate-300 mb-8 px-2 uppercase tracking-widest">
+        <div class="glass-panel p-8 mb-8">
+            <div class="flex justify-between text-[10px] font-black text-slate-300 mb-6 uppercase tracking-widest">
                 <span>Start 2023</span>
-                <span id="target-label" class="text-blue-500">Target 2050</span>
+                <span id="target-label">Target 2050</span>
             </div>
             <input type="range" id="year-slider" min="0" max="27" value="0">
-            <div class="flex justify-between mt-6 text-sm font-bold text-slate-400" id="slider-ticks">
+            <div class="flex justify-between mt-4 text-xs font-medium text-slate-500" id="slider-ticks">
                 <span>2023</span><span>2030</span><span>2040</span><span>2050</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-8">
-            <div class="glass-panel p-8">
-                <h5 class="text-base font-bold text-slate-700 mb-6 flex items-center gap-2">
-                    <span class="text-green-500 text-xl">🌿</span> <span id="ghg-y">2023</span>년 온실가스 데이터 세부 현황
+        <div class="grid grid-cols-2 gap-6">
+            <div class="glass-panel p-6">
+                <h5 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+                    <span class="text-green-500">🌿</span> <span id="ghg-year-title">2023</span>년 온실가스 세부 현황
                 </h5>
                 <table class="info-table">
                     <thead><tr><th>경영 지표 항목</th><th>당해 실적 (톤)</th><th>23년~ 누적합</th></tr></thead>
-                    <tbody id="ghg-table"></tbody>
+                    <tbody id="ghg-table-body"></tbody>
                 </table>
             </div>
-            <div class="glass-panel p-8">
-                <h5 class="text-base font-bold text-slate-700 mb-6 flex items-center gap-2">
-                    <span class="text-amber-500 text-xl">💰</span> <span id="cost-y">2023</span>년 투자 및 비용 세부 현황
+            <div class="glass-panel p-6">
+                <h5 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+                    <span class="text-amber-500">💰</span> <span id="cost-year-title">2023</span>년 투자 손익 세부 현황
                 </h5>
                 <table class="info-table">
                     <thead><tr><th>경영 지표 항목</th><th>당해 실적 (억)</th><th>23년~ 누적합</th></tr></thead>
-                    <tbody id="cost-table"></tbody>
+                    <tbody id="cost-table-body"></tbody>
                 </table>
             </div>
-            <div class="p-10 rounded-[2.5rem] border border-blue-100 bg-blue-50/20">
+            <div class="p-8 rounded-3xl border border-blue-100 bg-blue-50/20">
                 <h6 class="text-xs font-black text-blue-400 uppercase mb-4 tracking-widest">🌱 온실가스 감축 상세 정보</h6>
-                <p id="ghg-info" class="text-slate-600 font-bold leading-relaxed min-h-[60px] text-lg">-</p>
+                <p id="ghg-info-text" class="text-slate-600 font-medium leading-relaxed min-h-[50px] text-lg">-</p>
             </div>
-            <div class="p-10 rounded-[2.5rem] border border-amber-100 bg-amber-50/20">
+            <div class="p-8 rounded-3xl border border-amber-100 bg-amber-50/20">
                 <h6 class="text-xs font-black text-amber-400 uppercase mb-4 tracking-widest">💰 투자 및 재무 상세 정보</h6>
-                <p id="cost-info" class="text-slate-600 font-bold leading-relaxed min-h-[60px] text-lg">-</p>
+                <p id="cost-info-text" class="text-slate-600 font-medium leading-relaxed min-h-[50px] text-lg">-</p>
             </div>
         </div>
     </div>
@@ -145,22 +144,23 @@
             r.readAsArrayBuffer(e.target.files[0]);
         };
 
-        function updatePeriod(yr) {
-            currentTargetYear = yr;
+        function updatePeriod(year) {
+            currentTargetYear = year;
             document.querySelectorAll('.strategy-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + yr).classList.add('active');
+            document.getElementById('btn-' + year).classList.add('active');
             
-            // 2033년일 때 그래프 너비를 적절히 줄여 세련되게 표현
             const wrapper = document.getElementById('chart-wrapper');
-            if(yr === 2033) wrapper.classList.add('chart-midterm');
+            if(year === 2033) wrapper.classList.add('chart-midterm');
             else wrapper.classList.remove('chart-midterm');
 
-            const maxIdx = years.findIndex(y => Number(y) === yr);
+            const maxIdx = years.findIndex(y => Number(y) === year);
             const slider = document.getElementById('year-slider');
             slider.max = maxIdx !== -1 ? maxIdx : years.length - 1;
+            if(slider.value > slider.max) slider.value = slider.max;
             
-            document.getElementById('target-label').innerText = "Target " + yr;
-            document.getElementById('slider-ticks').innerHTML = yr === 2033 ? "<span>2023</span><span>2028</span><span>2033</span>" : "<span>2023</span><span>2030</span><span>2040</span><span>2050</span>";
+            document.getElementById('target-label').innerText = "Target " + year;
+            const ticks = document.getElementById('slider-ticks');
+            ticks.innerHTML = year === 2033 ? "<span>2023</span><span>2028</span><span>2033</span>" : "<span>2023</span><span>2030</span><span>2040</span><span>2050</span>";
             
             sync();
         }
@@ -179,12 +179,12 @@
         function sync() {
             if (raw.length === 0) return;
             const idx = parseInt(document.getElementById('year-slider').value);
-            const Y = years[idx];
-            document.getElementById('display-year').innerText = Y;
-            document.getElementById('ghg-y').innerText = Y;
-            document.getElementById('cost-y').innerText = Y;
-            document.getElementById('ghg-info').innerText = raw[14][idx+1] || "-";
-            document.getElementById('cost-info').innerText = raw[15][idx+1] || "-";
+            const yr = years[idx];
+            document.getElementById('display-year').innerText = yr;
+            document.getElementById('ghg-year-title').innerText = yr;
+            document.getElementById('cost-year-title').innerText = yr;
+            document.getElementById('ghg-info-text').innerText = raw[14][idx+1] || "-";
+            document.getElementById('cost-info-text').innerText = raw[15][idx+1] || "-";
             
             updateChart(); updateSummary(idx); updateTables(idx);
         }
@@ -192,16 +192,15 @@
         function updateChart() {
             if (chart) chart.destroy();
             const ctx = document.getElementById('mainChart').getContext('2d');
-            const maxR = parseInt(document.getElementById('year-slider').max) + 1;
-            const dY = years.slice(0, maxR);
-            const dR = raw.map(r => r.slice(0, maxR + 1));
-            const isC = menu === 'costs';
+            const maxRange = parseInt(document.getElementById('year-slider').max) + 1;
+            const dY = years.slice(0, maxRange);
+            const dR = raw.map(r => r.slice(0, maxRange + 1));
+            const isCost = menu === 'costs';
 
             let ds = [];
             if (menu === 'roadmap') {
                 ds = [
                     { label: '목표 배출량', data: dR[1].slice(1), backgroundColor: '#E2E8F0', type: 'bar' },
-                    { label: '예상 배출량', data: dR[0].slice(1), borderColor: '#94A3B8', type: 'line', pointRadius: 0, borderWidth: 1, fill: false },
                     { label: '실제 감축량(투자)', data: dR[2].slice(1), backgroundColor: '#00A1E0', type: 'bar' },
                     { label: '감축 필요량(REC)', data: dR[3].slice(1), backgroundColor: '#93E1FF', type: 'bar' },
                     { label: '넷제로 목표', data: dR[1].slice(1), borderColor: '#FF4D4D', type: 'line', pointStyle: 'line', borderDash: [5, 5], borderWidth: 2 }
@@ -224,18 +223,15 @@
                 data: { labels: dY, datasets: ds },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    animation: { duration: 1000, easing: 'easeOutQuart' }, // 역동적인 애니메이션 활성화
+                    animation: { duration: 1000, easing: 'easeOutQuart' }, // 역동적인 로딩 효과 추가
                     interaction: { mode: 'index', intersect: false },
                     scales: { 
-                        x: { stacked: menu!=='costs', grid: { display: false }, ticks: { font: { size: 12, weight: '600' } } },
-                        y: { stacked: menu!=='costs', grid: { color: '#F8FAFC' }, ticks: { callback: (v) => fmt(v, isC?'cost':'ghg') } }
+                        x: { stacked: menu!=='costs', grid: { display: false }, ticks: { font: { size: 12 }, color: '#94A3B8' } },
+                        y: { stacked: menu!=='costs', grid: { color: '#F8FAFC' }, ticks: { callback: (v) => fmt(v, isCost?'cost':'ghg') } }
                     },
                     plugins: { 
                         legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 6, font: { size: 11, weight: '700' } } },
-                        tooltip: {
-                            backgroundColor: '#1E293B', padding: 12,
-                            callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.raw, isC ? 'cost' : 'ghg')}` }
-                        }
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${fmt(ctx.raw, isCost?'cost':'ghg')}` } }
                     }
                 }
             });
@@ -248,31 +244,31 @@
             if (menu !== 'costs') {
                 items = [["목표 배출량", raw[1][idx+1]], ["예상 배출량", raw[0][idx+1]], ["실제 감축량", raw[2][idx+1]], ["감축 필요량", raw[3][idx+1]]];
             } else {
-                let i = 0, r = 0; for(let n=9; n<=13; n++) { let v = Number(raw[n][idx+1]) || 0; if(v<0) i+=v; else r+=v; }
-                items = [["투자 비용", Math.abs(i)], ["감축 비용", r], ["순비용", i+r]];
+                let inv = 0; let mnt = 0; for(let r=9; r<=13; r++) { let v = Number(raw[r][idx+1]) || 0; if(v<0) inv += v; else mnt += v; }
+                items = [["투자 비용", Math.abs(inv)], ["감축 비용", mnt], ["순비용", inv+mnt]];
             }
             items.forEach(i => {
-                list.innerHTML += `<div class="flex justify-between items-center py-3 border-b border-slate-50 last:border-none">
+                list.innerHTML += `<div class="flex justify-between items-center py-2 border-b border-slate-50">
                     <span class="text-slate-400 font-bold text-xs">${i[0]}</span>
-                    <span class="font-black text-slate-800 text-xl">${fmt(i[1], t)}<span class="text-[10px] ml-1 opacity-30">${u}</span></span>
+                    <span class="font-black text-slate-800 text-base">${fmt(i[1], t)}<span class="text-[10px] ml-1 opacity-30">${u}</span></span>
                 </div>`;
             });
         }
 
         function updateTables(idx) {
             const sum = (r, e) => raw[r].slice(1, e + 2).reduce((a, b) => a + (Number(b) || 0), 0);
-            const g = document.getElementById('ghg-table'); g.innerHTML = "";
+            const g = document.getElementById('ghg-table-body'); g.innerHTML = "";
             [["목표 배출량", raw[1][idx+1], "-"], ["예상 배출량", raw[0][idx+1], sum(0, idx)], ["실제 감축량", raw[2][idx+1], sum(2, idx)], ["감축 필요량", raw[3][idx+1], sum(3, idx)]].forEach(r => {
-                g.innerHTML += `<tr><td>${r[0]}</td><td class="font-bold text-slate-800">${fmt(r[1], 'ghg')}</td><td class="text-slate-400 font-semibold">${r[2]==='-'?'-':fmt(r[2], 'ghg')}</td></tr>`;
+                g.innerHTML += `<tr><td>${r[0]}</td><td class="font-bold">${fmt(r[1], 'ghg')}</td><td class="text-slate-400 font-semibold">${r[2]==='-'?'-':fmt(r[2], 'ghg')}</td></tr>`;
             });
-            const c = document.getElementById('cost-table'); c.innerHTML = "";
+            const c = document.getElementById('cost-table-body'); c.innerHTML = "";
             let iD=0, mD=0, iC=0, mC=0;
             for(let r=9; r<=13; r++) {
                 let v = Number(raw[r][idx+1]) || 0; if(v<0) iD+=v; else mD+=v;
                 for(let k=1; k<=idx+1; k++) { let nv = Number(raw[r][k]) || 0; if(nv<0) iC+=nv; else mC+=nv; }
             }
             [["투자비", Math.abs(iD), Math.abs(iC)], ["감축비", mD, mC], ["순비용", iD+mD, iC+mC]].forEach(r => {
-                c.innerHTML += `<tr><td>${r[0]}</td><td class="font-bold text-slate-800">${fmt(r[1], 'cost')}</td><td class="text-slate-400 font-semibold">${fmt(r[2], 'cost')}</td></tr>`;
+                c.innerHTML += `<tr><td>${r[0]}</td><td class="font-bold">${fmt(r[1], 'cost')}</td><td class="text-slate-400 font-semibold">${fmt(r[2], 'cost')}</td></tr>`;
             });
         }
 
